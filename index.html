@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Geolocation</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+      crossorigin=""
+    />
+    <style>
+      #mapid {
+        height: 70vh;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="lt"></h1>
+    <h1 id="lg"></h1>
+
+    <div id="mapid"></div>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script
+      src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+      integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+      crossorigin=""
+    ></script>
+    <script type="module">
+      import { ACCESS_TOKEN } from "./keys.mjs";
+
+      navigator.geolocation.getCurrentPosition(function(position) {
+        console.log(position);
+
+        const { latitude: lat, longitude: lng } = position.coords;
+        lt.textContent = `lat: ${lat}`;
+        lg.textContent = `lng: ${lng}`;
+
+        var mymap = L.map("mapid").setView([lat, lng], 17); //last is zoom level
+
+        L.tileLayer(
+          `https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${ACCESS_TOKEN}`,
+          {
+            attribution:
+              'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: "mapbox.streets",
+            accessToken: "your.mapbox.access.token"
+          }
+        ).addTo(mymap);
+        //place marker
+        var marker = L.marker([lat, lng]).addTo(mymap);
+
+        navigator.geolocation.watchPosition(function(position) {
+          const { latitude: lat2, longitude: lng2 } = position.coords;
+          lt.textContent = `lat: ${lat2}`;
+          lg.textContent = `lng: ${lng2}`;
+
+          marker.setLatLng(L.latLng(lat2, lng2));
+        });
+      });
+    </script>
+  </body>
+</html>
